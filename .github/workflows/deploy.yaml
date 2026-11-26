@@ -5,7 +5,6 @@ on: # Events that start the workflow
     branches: [main] # Only pushes to main
     paths: # Only when one of these files changes
       - "src/**" # React code and styles
-      - "server/**" # API and backend tests
       - "public/**" # Static assets
       - "index.html" # HTML entry page
       - "package.json" # Dependencies
@@ -45,9 +44,6 @@ jobs: # Jobs in this workflow
 
       - name: Install dependencies # Step name shown in the log
         run: npm ci # Install exact versions from package-lock.json
-
-      - name: Test backend
-        run: npm test
 
       - name: Build # Step name shown in the log
         run: npm run build # Vite builds the site into dist/ (commit hash comes from GITHUB_SHA)
@@ -135,19 +131,12 @@ jobs: # Jobs in this workflow
         env: # Variables for this step
           IP: ${{ steps.instance.outputs.ip }} # Instance IP from the earlier step
         run: | # Multi-line shell script
-          mkdir -p deploy-package/site deploy-package/server deploy-package/infra # Keep deployable files separate
-          cp -a dist/. deploy-package/site/ # Add the built frontend
-          cp server/index.js deploy-package/server/index.js # Add the API server
-          cp infra/configure-instance.sh deploy-package/infra/configure-instance.sh # Configure nginx and the API service idempotently
-          tar -czf site.tar.gz -C deploy-package . # Pack both deployable parts
+          tar -czf site.tar.gz -C dist . # Pack the build into one file (faster than copying many small files)
           scp $SSH_OPTS site.tar.gz ec2-user@"$IP":/tmp/site.tar.gz # Copy it to the instance
-          ssh $SSH_OPTS ec2-user@"$IP" "rm -rf /tmp/pani-puri-deploy && mkdir -p /tmp/pani-puri-deploy && tar -xzf /tmp/site.tar.gz -C /tmp/pani-puri-deploy && rm -rf $SITE_DIR/* && cp -a /tmp/pani-puri-deploy/site/. $SITE_DIR/ && sudo install -D -o root -g root -m 644 /tmp/pani-puri-deploy/server/index.js /opt/pani-puri-house/server/index.js && sudo bash /tmp/pani-puri-deploy/infra/configure-instance.sh && rm -rf /tmp/pani-puri-deploy /tmp/site.tar.gz" # Replace the site and reapply nginx and API configuration
+          ssh $SSH_OPTS ec2-user@"$IP" "rm -rf $SITE_DIR/* && tar -xzf /tmp/site.tar.gz -C $SITE_DIR && rm /tmp/site.tar.gz" # Replace the old site with the new one
 
       - name: Check the site is live # Step name shown in the log
         run: curl -fsS --retry 5 --retry-delay 3 "http://${{ steps.instance.outputs.ip }}" | grep -q 'id="root"' # Fail if nginx doesn't serve the React page
-
-      - name: Check the API is live
-        run: curl -fsS --retry 5 --retry-delay 3 "http://${{ steps.instance.outputs.ip }}/api/health" | grep -q '"status":"ok"'
 
       - name: Show outputs # Step name shown in the log
         run: | # Multi-line shell script

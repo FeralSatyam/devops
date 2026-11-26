@@ -7,11 +7,6 @@ const builtAt = new Date().toISOString();
 
 export default defineConfig({
   plugins: [react()],
-  server: {
-    proxy: {
-      '/api': 'http://127.0.0.1:3000',
-    },
-  },
   define: {
     __COMMIT__: JSON.stringify(commit),
     __BUILT_AT__: JSON.stringify(builtAt),

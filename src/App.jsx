@@ -1,64 +1,30 @@
-import { useEffect, useState } from 'react';
+const menu = [
+  {
+    name: 'Classic Pani Puri',
+    description: 'Crisp puris, potato, chickpeas and our tangy house pani.',
+    price: '₹80',
+    icon: '🥣',
+    label: 'The original',
+  },
+  {
+    name: 'Dahi Puri',
+    description: 'Cool yogurt, sweet chutney, sev and a little bit of magic.',
+    price: '₹100',
+    icon: '🥛',
+    label: 'Creamy & cool',
+  },
+  {
+    name: 'Sukha Puri',
+    description: 'A crunchy finish filled with masala, chutneys and sev.',
+    price: '₹60',
+    icon: '✨',
+    label: 'One more bite',
+  },
+];
 
 const puris = ['🌿', '🌶️', '🥔', '🌱', '🧅', '🍋'];
 
 export default function App() {
-  const [menu, setMenu] = useState([]);
-  const [menuError, setMenuError] = useState('');
-  const [selectedItem, setSelectedItem] = useState('');
-  const [order, setOrder] = useState({ name: '', phone: '', quantity: '1' });
-  const [orderMessage, setOrderMessage] = useState('');
-  const [orderError, setOrderError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-
-    fetch('/api/menu')
-      .then((response) => {
-        if (!response.ok) throw new Error('The menu is temporarily unavailable.');
-        return response.json();
-      })
-      .then((items) => {
-        if (!active) return;
-        setMenu(items);
-        setSelectedItem(items.length ? items[0].id : '');
-      })
-      .catch((error) => {
-        if (active) setMenuError(error.message);
-      });
-
-    return () => { active = false; };
-  }, []);
-
-  async function submitOrder(event) {
-    event.preventDefault();
-    setSubmitting(true);
-    setOrderMessage('');
-    setOrderError('');
-
-    try {
-      const response = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: order.name,
-          phone: order.phone,
-          menuItemId: selectedItem,
-          quantity: Number(order.quantity),
-        }),
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'We could not place your order.');
-      setOrderMessage(`Order ${result.order.id.slice(0, 8)} received — ₹${result.order.total}.`);
-      setOrder({ name: '', phone: '', quantity: '1' });
-    } catch (error) {
-      setOrderError(error.message);
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
   return (
     <main>
       <header className="site-header">
@@ -133,18 +99,13 @@ export default function App() {
               <div className="menu-card-copy">
                 <div className="menu-title">
                   <h3>{item.name}</h3>
-                  <span>₹{item.price}</span>
+                  <span>{item.price}</span>
                 </div>
                 <p>{item.description}</p>
-                <a className="menu-order-link" href="#visit" onClick={() => setSelectedItem(item.id)}>
-                  Order this <span aria-hidden="true">↗</span>
-                </a>
               </div>
             </article>
           ))}
         </div>
-        {menuError && <p className="api-error" role="alert">{menuError}</p>}
-        {!menu.length && !menuError && <p className="menu-loading" role="status">Fresh menu coming right up…</p>}
       </section>
 
       <section className="story-section" id="story">
@@ -163,51 +124,7 @@ export default function App() {
       <section className="visit-section page-width" id="visit">
         <p className="eyebrow"><span aria-hidden="true">03 /</span> Your move</p>
         <h2>Bring your appetite.<br /><em>We’ll bring the pani.</em></h2>
-        <form className="order-form" onSubmit={submitOrder}>
-          <label>
-            Your name
-            <input
-              autoComplete="name"
-              maxLength="100"
-              required
-              value={order.name}
-              onChange={(event) => setOrder({ ...order, name: event.target.value })}
-            />
-          </label>
-          <label>
-            Phone number
-            <input
-              autoComplete="tel"
-              inputMode="tel"
-              maxLength="24"
-              required
-              value={order.phone}
-              onChange={(event) => setOrder({ ...order, phone: event.target.value })}
-            />
-          </label>
-          <label>
-            Pick your puri
-            <select required value={selectedItem} onChange={(event) => setSelectedItem(event.target.value)}>
-              {menu.map((item) => <option value={item.id} key={item.id}>{item.name} — ₹{item.price}</option>)}
-            </select>
-          </label>
-          <label>
-            Plates
-            <input
-              type="number"
-              min="1"
-              max="20"
-              required
-              value={order.quantity}
-              onChange={(event) => setOrder({ ...order, quantity: event.target.value })}
-            />
-          </label>
-          <button className="button button-light order-submit" type="submit" disabled={submitting || !menu.length}>
-            {submitting ? 'Sending…' : 'Place your order'} <span aria-hidden="true">↑</span>
-          </button>
-          {orderMessage && <p className="order-message" role="status">{orderMessage}</p>}
-          {orderError && <p className="order-error" role="alert">{orderError}</p>}
-        </form>
+        <a className="button button-light" href="#menu">Find your favourite <span aria-hidden="true">↑</span></a>
         <span className="visit-decoration" aria-hidden="true">✳</span>
       </section>
 
