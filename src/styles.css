@@ -505,6 +505,30 @@ h2 {
   line-height: 1.7;
 }
 
+.menu-order-link {
+  display: inline-flex;
+  gap: 8px;
+  margin-top: 15px;
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.menu-order-link span {
+  color: var(--orange);
+}
+
+.menu-loading,
+.api-error {
+  margin: 20px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.api-error {
+  color: #a52c1a;
+}
+
 .story-section {
   overflow: hidden;
   background: #f3e8d1;
@@ -604,15 +628,16 @@ h2 {
 }
 
 .visit-section {
-  min-height: 390px;
+  min-height: 520px;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   overflow: hidden;
   margin-top: 90px;
   margin-bottom: 80px;
+  padding: 58px 28px;
   border-radius: 12px;
   background: var(--green);
   color: white;
@@ -638,6 +663,74 @@ h2 {
 
 .button-light:hover {
   background: white;
+}
+
+.order-form {
+  width: min(560px, 100%);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 28px;
+  text-align: left;
+}
+
+.order-form label {
+  display: grid;
+  gap: 7px;
+  color: #f5e8cf;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.order-form input,
+.order-form select {
+  width: 100%;
+  min-height: 43px;
+  padding: 0 12px;
+  border: 1px solid #ffffff50;
+  border-radius: 7px;
+  background: #ffffff12;
+  color: white;
+  font: inherit;
+}
+
+.order-form select option {
+  color: var(--ink);
+}
+
+.order-form input:focus-visible,
+.order-form select:focus-visible {
+  outline: 2px solid #f4c655;
+  outline-offset: 2px;
+}
+
+.order-submit {
+  grid-column: 1 / -1;
+  justify-self: center;
+  margin-top: 5px;
+  border: 0;
+  cursor: pointer;
+}
+
+.order-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.order-message,
+.order-error {
+  grid-column: 1 / -1;
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+}
+
+.order-message {
+  color: #f4c655;
+}
+
+.order-error {
+  color: #ffd0c4;
 }
 
 .visit-decoration {
@@ -793,9 +886,19 @@ h2 {
   }
 
   .visit-section {
-    min-height: 340px;
+    min-height: 440px;
     margin-top: 58px;
     margin-bottom: 58px;
+    padding: 48px 20px;
+  }
+
+  .order-form {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .order-submit {
+    grid-column: auto;
   }
 
   .visit-decoration {

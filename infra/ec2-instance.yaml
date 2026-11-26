@@ -55,9 +55,10 @@ Resources: # AWS resources this stack creates
         Fn::Base64: | # EC2 expects the script base64-encoded; "|" keeps the lines as written
           #!/bin/bash
           set -euo pipefail                             # Stop on the first error (shows in /var/log/cloud-init-output.log)
-          dnf install -y nginx                          # Install the nginx web server
+          dnf install -y nginx nodejs                   # Install nginx and the Node.js runtime
+          mkdir -p /opt/pani-puri-house/server /var/lib/pani-puri-house
+          chown ec2-user:ec2-user /var/lib/pani-puri-house
           chown -R ec2-user:ec2-user /usr/share/nginx/html  # Let ec2-user (the workflow's SSH user) replace the site files without sudo
-          systemctl enable --now nginx                  # Start nginx now and on every reboot
       Tags: # Labels on the instance
         - Key: Name # The "Name" tag is what the EC2 console shows
           Value: !Sub "${AWS::StackName}-instance" # e.g. ec2-lab-stack-instance
